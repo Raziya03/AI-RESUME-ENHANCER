@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard – HireCraft AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+<!-- ===== TOP BAR ===== -->
+<div class="dashboard-header">
+  <div class="dash-left">
+    <h2>HireCraft AI</h2>
+  </div>
+
+  <div class="top-user">
+  <div class="user-box">
+    <span class="user-icon">👤</span>
+    <span class="user-name">{{ username }}</span>
+  </div>
+
+  <a href="/logout" class="logout-btn">Logout</a>
+</div>
+
+</div>
+
+<!-- ===== MAIN CONTAINER ===== -->
+<div class="dashboard-container">
+
+  <!-- ===== LEFT PANEL ===== -->
+  <div class="dashboard-panel">
+
+    <h3>Your Uploaded Resumes</h3>
+
+    <a href="/upload">
+      <button class="primary-btn">➕ Upload Resume</button>
+    </a>
+
+    <ul class="resume-list">
+      {% for r in resumes %}
+        <li class="resume-card">
+          <span>{{ r[0] }}</span>
+          <div class="resume-actions">
+            <button onclick="selectResume('{{ r[0] }}')">Select</button>
+            <button class="danger" onclick="deleteResume('{{ r[0] }}')">Delete</button>
+          </div>
+        </li>
+      {% else %}
+        <li class="empty">No resumes uploaded</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+
+  <!-- ===== RIGHT PANEL ===== -->
+  <div class="dashboard-panel wide">
+
+    <div id="enhanceSection" style="display:none;">
+
+      <h3><B>Enhance Resume Here</B></h3>
+      <p class="selected">
+        Selected Resume: <b><span id="selectedName"></span></b>
+      </p>
+
+      <div class="enhance-box">
+      <textarea id="jobDesc" rows="6"
+      placeholder="Paste job description here..."></textarea>
+
+      <button class="enhance-btn" onclick="enhanceResume()">
+      <b>Enhance Resume</b>
+      </button>
+      </div>
+
+      <p id="status" class="status-text"></p>
+
+      <!-- ===== OUTPUTS ===== -->
+      <div class="output-section">
+        <h2>Improved Resume</h2>
+        <div class="output-box">
+          <pre id="improved"></pre>
+        </div>
+        <button onclick="copyText('improved')">Copy Resume</button>
+      </div>
+
+      <div class="output-section">
+        <h2>Cover Letter</h2>
+        <div class="output-box">
+          <pre id="cover"></pre>
+        </div>
+        <button onclick="copyText('cover')">Copy Cover Letter</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== JS (UNCHANGED) ===== -->
+<script>
+let selectedResume = null;
+
+function selectResume(filename) {
+  selectedResume = filename;
+  document.getElementById("enhanceSection").style.display = "block";
+  document.getElementById("selectedName").innerText = filename;
+}
+
+function deleteResume(filename) {
+  if (!confirm("Delete this resume?")) return;
+
+  fetch("/api/delete_resume", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ filename })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) location.reload();
+  });
+}
+
+function enhanceResume() {
+  const job = document.getElementById("jobDesc").value;
+  const status = document.getElementById("status");
+
+  if (!job.trim()) {
+    status.innerText = "Please enter job description";
+    status.style.color = "red";
+    return;
+  }
+
+  status.innerText = "Enhancing resume using AI...";
+  status.style.color = "#333";
+
+  fetch("/api/enhance", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      job: job,
+      filename: selectedResume
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById("improved").innerText = data.improved_resume;
+      document.getElementById("cover").innerText = data.cover_letter;
+      status.innerText = "Enhancement completed ✔";
+      status.style.color = "green";
+    } else {
+      status.innerText = "Enhancement failed";
+      status.style.color = "red";
+    }
+  });
+}
+
+function copyText(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text);
+  alert("Copied to clipboard!");
+}
+</script>
+
+</body>
+</html>

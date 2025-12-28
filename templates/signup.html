@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Account | HireCraft AI</title>
+  <link rel="stylesheet" href="/static/auth.css">
+</head>
+<body>
+
+
+
+<div class="bg-blob blob-1"></div>
+<div class="bg-blob blob-2"></div>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <!-- LEFT GRAPHIC PANEL -->
+    <div class="auth-left">
+      <h1><i><b>Create A Resume</b><br><b>You Are Proud Of</b></i></h1>
+
+      <ul class="benefits">
+        <li>→ <I>AI-Powered Resume Enhancement To Reduce extra Ghostwriting Costs</I></li>
+        <li>→ <I>ATS Score Optimization Effectively</I></li>
+        <li>→ <I>Helps In Faster Shortlisting In Top Companies</I></li>
+      </ul>
+      <div class="ai-mini-orb"></div>
+    </div>
+
+
+    <!-- RIGHT FORM -->
+    <div class="auth-right">
+      <h2><B>Create Account</B></h2>
+
+      <input id="username" placeholder="Username">
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+
+      <button onclick="signup()">Create Account</button>
+      <p id="msg"></p>
+
+      <p class="switch">
+        Already registered? <a href="/login">Sign In</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function signup() {
+  msg.innerText = "Registering...";
+  msg.style.color = "#555";
+
+  fetch("/api/signup", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      username: username.value,
+      email: email.value,
+      password: password.value
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    msg.innerText = d.message;
+    msg.style.color = d.success ? "green" : "red";
+  });
+}
+</script>
+
+</body>
+</html>
