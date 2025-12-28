@@ -5,3 +5,4 @@ Pillow
 PyPDF2
 python-dotenv
 PyMuPDF
+opencv-python-headless
