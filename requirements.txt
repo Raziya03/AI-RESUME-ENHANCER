@@ -1,2 +1,6 @@
-flask
+Flask
 openai
+pytesseract
+Pillow
+PyPDF2
+python-dotenv
