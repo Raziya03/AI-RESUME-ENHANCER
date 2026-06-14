@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify, redirect, session
 import sqlite3
 import hashlib
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from openai import OpenAI
 from ocr_utils import extract_text
 
